@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# HOW TO USE:
+# 1. Copy the file to your $PATH folder, for example /usr/local/bin
+# 2. Run "kubectl kubeplugin -t RESOURCE_TYPE -n NAMESAPCE
+#   where RESOURCE_TYPE is "node" or "pod" (default is "pod")
+#   and NAMESPACE - required namespace (default is "kube-system").
+#   both are optional.
+# 3. Script will show CPU and Memory usage by resource. Break on press any key
+
+# Check if kubectl is installed
+if ! command -v kubectl &> /dev/null
+then
+    echo "kubectl could not be found. Please install kubectl to use this script."
+    exit 1
+fi
+
+# Set default values
+NAMESPACE="kube-system"
+RESOURCE_TYPE="pod"
+
+# Parse arguments
+while getopts "t:n:" opt; do
+  case $opt in
+    t) RESOURCE_TYPE="$OPTARG"
+    ;;
+    n) NAMESPACE="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+        exit 1
+    ;;
+  esac
+done
+
+# Validate resource type
+if [[ "$RESOURCE_TYPE" != "pod" && "$RESOURCE_TYPE" != "node" ]]; then
+    echo "Invalid resource type. Please specify 'pod' or 'node'."
+    exit 1
+fi
+
+# Function to fetch and display resource usage
+fetch_usage() {
+    if [ "$RESOURCE_TYPE" == "pod" ]; then
+        echo -e "Resource Type\tResource Name\tNamespace\tCPU Usage\tMemory Usage" | awk '{printf "%-13s %-45s %-30s %-10s %-10s\n", $1, $2, $3, $4, $5}'
+        kubectl top pod -n $NAMESPACE --no-headers | awk -v ns=$NAMESPACE '{printf "%-13s %-45s %-30s %-10s %-10s\n", "Pod", $1, ns, $2, $3}'
+    elif [ "$RESOURCE_TYPE" == "node" ]; then
+        echo -e "Resource\tName\tCPU\tMemory" | awk '{printf "%-15s %-40s %-10s %-10s\n", $1, $2, $3, $4}'
+        kubectl top node --no-headers | awk '{printf "%-15s %-40s %-10s %-10s\n", "Node", $1, $2, $3}'
+    fi
+}
+
+# Loop to update data automatically
+while true; do
+    clear
+    fetch_usage
+    echo -e "\nPress any key to stop."
+    read -t 5 -n 1 key
+    if [[ $? -eq 0 ]]; then
+        break
+    fi
+done
