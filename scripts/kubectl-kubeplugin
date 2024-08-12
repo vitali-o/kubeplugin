@@ -41,11 +41,11 @@ fi
 # Function to fetch and display resource usage
 fetch_usage() {
     if [ "$RESOURCE_TYPE" == "pod" ]; then
-        echo -e "Resource Type\tResource Name\tNamespace\tCPU Usage\tMemory Usage" | awk '{printf "%-13s %-45s %-30s %-10s %-10s\n", $1, $2, $3, $4, $5}'
-        kubectl top pod -n $NAMESPACE --no-headers | awk -v ns=$NAMESPACE '{printf "%-13s %-45s %-30s %-10s %-10s\n", "Pod", $1, ns, $2, $3}'
+        echo -e "Resource\tNamespace\tName\tCPU\tMemory" | awk '{printf "%-13s %-30s %-45s %-10s %-10s\n", $1, $2, $3, $4, $5}'
+        kubectl top pod -n $NAMESPACE --no-headers | awk -v ns=$NAMESPACE '{printf "%-13s %-30s %-45s %-10s %-10s\n", "Pod", ns, $1, $2, $3}'
     elif [ "$RESOURCE_TYPE" == "node" ]; then
-        echo -e "Resource\tName\tCPU\tMemory" | awk '{printf "%-15s %-40s %-10s %-10s\n", $1, $2, $3, $4}'
-        kubectl top node --no-headers | awk '{printf "%-15s %-40s %-10s %-10s\n", "Node", $1, $2, $3}'
+        echo -e "Resource\tNamespace\tName\tCPU\tMemory" | awk '{printf "%-15s %-10s %-40s %-10s %-10s\n", $1, $2, $3, $4, $5}'
+        kubectl top node --no-headers | awk '{printf "%-15s %-10s %-40s %-10s %-10s\n", "Node", "-", $1, $2, $3}'
     fi
 }
 
