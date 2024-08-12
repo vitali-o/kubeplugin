@@ -7,4 +7,4 @@
 3. Script will show CPU and Memory usage by resource. Break on press any key
 
 ### Demo:
-![demo](https://github.com/vitali-o/AsciiArtify/blob/main/images/kubeplugin.gif?raw=true)
+![demo](https://github.com/vitali-o/kubeplugin/blob/main/images/kubeplugin.gif?raw=true)
